@@ -16,6 +16,8 @@ interface userHistory {
         choices: string[];
       };
 }
+import * as pdfjsLib from "pdfjs-dist";
+import mammoth from "mammoth";
 
 export default function Home() {
   const [file, setFile] = useState<string | null>(null);
@@ -50,11 +52,16 @@ export default function Home() {
       },
     ];
     setQuizHistory(newQuizHistory);
-    const { question, choices, raw } = await getStory(
-      newQuizHistory,
-      UUID,
-      "quiz_q"
-    );
+    let question, choices, raw;
+    try {
+      ({ question, choices, raw } = await getStory(
+        newQuizHistory,
+        UUID,
+        "quiz_q"
+      ));
+    } catch {
+      alert("Something went wrong.");
+    }
     setQuestion(question);
     setQuizHistory([
       ...newQuizHistory,
@@ -70,7 +77,6 @@ export default function Home() {
     setLoading(false);
   }
   const handleFileChange = (event: any) => {
-    setLoading(true);
     setFile(null);
     setFreeHistory([
       {
@@ -81,23 +87,90 @@ export default function Home() {
     setPrompt("");
     const file = event.target.files[0];
     if (file) {
+      console.log(file.type);
       if (file.type === "text/plain") {
         const reader = new FileReader();
         reader.onload = async (e) => {
           const result = e.target?.result;
           if (typeof result === "string") {
-            setUUID((await Chunker(result)) || "");
-            setFile(result);
+            try {
+              setLoading(true);
+              setUUID((await Chunker(result)) || "");
+              setFile(result);
+              setLoading(false);
+            } catch {
+              alert("Something went wrong.");
+            }
           } else {
             alert("File content is not a string.");
           }
         };
         reader.readAsText(file);
+      } else if (file.type === "application/pdf") {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const arrayBuffer = event.target?.result;
+          if (arrayBuffer === null) {
+            alert("Failed to load file.");
+            return;
+          }
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = "";
+
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            const textItems = textContent.items
+              .map((item: any) => item.str)
+              .join(" ");
+            fullText += textItems + " ";
+          }
+          if (typeof fullText === "string") {
+            try {
+              setLoading(true);
+              setUUID((await Chunker(fullText)) || "");
+              setFile(fullText);
+              setLoading(false);
+            } catch {
+              alert("Something went wrong.");
+            }
+          } else {
+            alert("File content is not a string.");
+          }
+          setFile(fullText);
+        };
+        reader.readAsArrayBuffer(file);
+      } else if (
+        file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const arrayBuffer = event.target?.result;
+
+          try {
+            if (!(arrayBuffer instanceof ArrayBuffer)) {
+              alert("Failed to load file.");
+              return;
+            }
+            const result = await mammoth.extractRawText({
+              arrayBuffer: arrayBuffer,
+            });
+            const text = result.value;
+            setLoading(true);
+            setUUID((await Chunker(text)) || "");
+            setFile(text);
+            setLoading(false);
+          } catch (error) {
+            console.error("Error extracting text from docx:", error);
+            alert("Could not extract text from document.");
+          }
+        };
+        reader.readAsArrayBuffer(file);
       } else {
         alert("Please select a .txt file.");
       }
     }
-    setLoading(false);
   };
 
   async function handleSubmit() {
@@ -111,7 +184,12 @@ export default function Home() {
       },
     ];
     setFreeHistory(newFreeHistory);
-    const res = await getStory(newFreeHistory, UUID, "free");
+    let res;
+    try {
+      res = await getStory(newFreeHistory, UUID, "free");
+    } catch {
+      alert("Something went wrong.");
+    }
     const newHistory = [...newFreeHistory, { role: "assistant", content: res }];
     setFreeHistory(newHistory);
     setLoading(false);
@@ -134,7 +212,12 @@ export default function Home() {
     ];
     setQuizHistory(newQuizHistory);
     setUserQuizHistory(newUserQuizHistory);
-    const res = await getStory(newQuizHistory, UUID, "quiz_r", question);
+    let res;
+    try {
+      res = await getStory(newQuizHistory, UUID, "quiz_r", question);
+    } catch {
+      alert("Something went wrong.");
+    }
     const newHistory = [...newQuizHistory, { role: "assistant", content: res }];
     const newUserHistory = [
       ...newUserQuizHistory,
@@ -147,7 +230,11 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       {loading && <h1>LOADING...</h1>}
-      <input type="file" onChange={handleFileChange} accept="text/plain" />
+      <input
+        type="file"
+        onChange={handleFileChange}
+        accept="text/plain, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      />
 
       {file && (
         <div>
@@ -170,8 +257,8 @@ export default function Home() {
           {mode === "free" ? (
             <>
               <p>file loaded successfully! Ask the document questions:</p>
-              {FreeHistory.slice(0, 1).length > 0 &&
-                FreeHistory.map((msg: history, index: number) => (
+              {FreeHistory.slice(1).length > 0 &&
+                FreeHistory.slice(1).map((msg: history, index: number) => (
                   <h1 key={index}>
                     {msg.role}: {msg.content}
                   </h1>
@@ -180,6 +267,11 @@ export default function Home() {
                 className="text-black w-full"
                 type="text"
                 value={prompt}
+                onKeyPress={(event) => {
+                  if (event.key === 'Enter') {
+                    handleSubmit();
+                  }
+                }}
                 onChange={(event) => {
                   setPrompt(event.target.value);
                 }}
@@ -188,7 +280,7 @@ export default function Home() {
             </>
           ) : (
             <>
-              <button onClick={handleQuestion}>Generate Question</button>
+              <button disabled={loading} onClick={handleQuestion}>Generate Question</button>
               {userQuizHistory.length > 0 &&
                 userQuizHistory.map((msg: userHistory, index: number) =>
                   typeof msg.content === "string" ? (
@@ -201,7 +293,7 @@ export default function Home() {
                       {msg.content.choices.map((choice: string, i: number) => (
                         <button
                           onClick={handleResponse}
-                          disabled={userQuizHistory.length - 1 !== index}
+                          disabled={userQuizHistory.length - 1 !== index || loading}
                           key={i}
                         >
                           {choice}

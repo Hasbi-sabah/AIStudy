@@ -18,9 +18,9 @@ export async function getStory(
   console.log("start of getting story");
   let docs;
   if (mode === "free" || mode === "quiz_q") {
-    docs = await SEC(uuid, messages[messages.length - 1].content);
+    docs = await SEC(uuid, messages[messages.length - 1].content) || [];
   } else {
-    docs = await SEC(uuid, question);
+    docs = await SEC(uuid, question) || [];
   }
   console.log("got docs:", docs);
   let openai: OpenAI;
@@ -30,7 +30,7 @@ export async function getStory(
       baseURL: "https://api.aimlapi.com/",
     });
   } catch (error) {
-    alert("Something went wrong.");
+    new Error("Something went wrong.");
     return;
   }
 
@@ -62,7 +62,7 @@ export async function getStory(
       stream: false,
     });
   } catch (error) {
-    alert("Something went wrong.");
+    new Error("Something went wrong.");
     return;
   }
 
@@ -83,6 +83,7 @@ export async function getStory(
       return response.choices[0].message.content;
     }
   } catch (error) {
+    new Error("Something went wrong.");
     console.log(error);
     // return getStory(messages, uuid, mode);
   }
