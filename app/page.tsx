@@ -254,7 +254,7 @@ export default function Home() {
     setLoading(false);
   }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center justify-between p-10">
       <Upload handleFileChange={handleFileChange} fileName={fileName} />
       <Loading loading={loading} />
       {file && (

@@ -26,7 +26,7 @@ export async function getStory(
   let openai: OpenAI;
   try {
     openai = new OpenAI({
-      apiKey: process.env.REACT_APP_API_KEY,
+      apiKey: process.env.API_KEY,
       baseURL: "https://api.aimlapi.com/",
     });
   } catch (error) {

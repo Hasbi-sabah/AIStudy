@@ -8,7 +8,7 @@ export default function Upload({ handleFileChange, fileName }: UploadProps) {
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full">
-        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+        <label className="flex flex-col items-center justify-center w-[50%] h-36 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-[#212268] hover:bg-gray-100 dark:border-[#1f4770] dark:hover:border-[#1d456c] dark:hover:bg-[#474883]">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <svg
               className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
@@ -30,7 +30,7 @@ export default function Upload({ handleFileChange, fileName }: UploadProps) {
               drop
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              SVG, PNG, JPG or GIF (MAX. 800x400px)
+            TXT, PDF, or Word Documents
             </p>
           </div>
           <input

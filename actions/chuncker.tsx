@@ -30,7 +30,7 @@ export default async function Chunker(text: string) {
     //     {
     //       configuration: {
     //         baseURL: "https://api.aimlapi.com",
-    //         apiKey: process.env.REACT_APP_API_KEY,
+    //         apiKey: process.env.API_KEY,
     //       },
     //       model: "text-embedding-3-small",
     //     },
@@ -47,7 +47,7 @@ export default async function Chunker(text: string) {
     // const docs = await loader.load();
     // const vectorStore = await MemoryVectorStore.fromDocuments(
     //   docs,
-    //   new OpenAIEmbeddings({configuration: {baseURL: "https://api.aimlapi.com", apiKey: process.env.REACT_APP_API_KEY}, model: "text-embedding-3-small"})
+    //   new OpenAIEmbeddings({configuration: {baseURL: "https://api.aimlapi.com", apiKey: process.env.API_KEY}, model: "text-embedding-3-small"})
     // );
     await QdrantVectorStore.fromTexts(
       texts.slice(0, 100),
@@ -55,7 +55,7 @@ export default async function Chunker(text: string) {
       new OpenAIEmbeddings({
         configuration: {
           baseURL: "https://api.aimlapi.com",
-          apiKey: process.env.REACT_APP_API_KEY,
+          apiKey: process.env.API_KEY,
         },
         model: "text-embedding-3-small",
       }),
@@ -63,17 +63,18 @@ export default async function Chunker(text: string) {
       //   apiKey: process.env.TOGETHER_AI_API_KEY,
       // }),
       {
-        url: "https://a4e3089e-60c5-450b-b9d3-38e7cfb46804.us-east4-0.gcp.cloud.qdrant.io:6333",
-        apiKey: "f6JDSq2EAzwJ4YdH3tUFS1mRg_17cw3PE7NjaKxH0RND1d4dLOV_5A",
+        url: process.env.REACT_APP_QDRANT_URL,
+        apiKey: process.env.QDRANT_API_KEY,
         collectionName: collectionUUID,
       }
     );
-  } catch {
+    return collectionUUID;
+  } catch(error) {
+    console.log(error)
     new Error("Something went wrong.");
     return;
   }
 
-  return collectionUUID;
   // console.log("searching for similarity");
 
   // const client = new QdrantClient({
