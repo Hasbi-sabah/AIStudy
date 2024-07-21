@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useEffect, useRef } from "react";
 interface userHistory {
   role: string;
   content:
@@ -29,6 +30,11 @@ export default function QuizMode({
   userQuizHistory,
   handleResponse,
 }: QuizModeProps) {
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [userQuizHistory]);
   return (
     <div className="flex flex-col justify-center items-center gap-3">
       {userQuizHistory.length > 0 &&
@@ -49,11 +55,11 @@ export default function QuizMode({
               <Card className='border-none'>
                 <CardHeader className="p-2">
                   <CardTitle
-                    className={`text-sm ${
+                    className={`text-sm custom ${
                       msg.role === "user" ? "self-end" : "self-start"
                     }`}
                   >
-                    {msg.role}
+                  {msg.role === 'assistant' ? 'Assistant:' : 'User:'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -83,11 +89,11 @@ export default function QuizMode({
               <Card className={`border-none `}>
                 <CardHeader className="p-2">
                   <CardTitle
-                    className={`text-sm ${
+                    className={`text-sm custom ${
                       msg.role === "user" ? "self-end" : "self-start"
                     }`}
                   >
-                    {msg.role}
+                  {msg.role === 'assistant' ? 'Assistant:' : 'User:'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -120,6 +126,7 @@ export default function QuizMode({
       <Button disabled={loading} onClick={handleQuestion}>
         Generate Question
       </Button>
+      <div ref={messagesEndRef} />
     </div>
   );
 }

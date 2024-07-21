@@ -24,6 +24,9 @@ import FreeMode from "@/components/freeMode";
 import QuizMode from "@/components/quizMode";
 import ModeToggle from "@/components/modeToggle";
 import Loading from "@/components/loading";
+import { Toast } from "@radix-ui/react-toast";
+import { toast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Home() {
   const [file, setFile] = useState<string | null>(null);
@@ -100,11 +103,10 @@ export default function Home() {
         content: `You are a document, ask the user questions about the document, the user will give you answers, and you will have to tell them if they are correct or not, do not ask questions that don't relate to the context.`,
       },
     ]);
-    setUserQuizHistory([])
+    setUserQuizHistory([]);
     setPrompt("");
     const file = event.target.files[0];
     if (file) {
-      console.log(file.type);
       if (file.type === "text/plain") {
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -116,6 +118,7 @@ export default function Home() {
               setFile(result);
               setFileName(file.name);
               setLoading(false);
+              toast({title:"File uploaded", description:"File uploaded successfully!"});
             } catch (error) {
               console.log(error);
               alert("Something went wrong.");
@@ -201,7 +204,7 @@ export default function Home() {
         };
         reader.readAsArrayBuffer(file);
       } else {
-        alert("Please select a .txt file.");
+        toast({title:"Invalid file type", description:"Please upload a .txt, .pdf, or .docx file.", variant: "destructive"});
         return;
       }
     }
@@ -266,34 +269,37 @@ export default function Home() {
     setLoading(false);
   }
   return (
-    <main className="flex min-h-screen flex-col p-10">
-      <Upload handleFileChange={handleFileChange} fileName={fileName} />
-      <Loading loading={loading} />
-      {file && (
-        <div className="flex flex-grow flex-col h-full items-center justify-between gap-10 px-[10%]">
-          <div>
-            <ModeToggle mode={mode} setMode={setMode} />
+    <body>
+      <main className="flex min-h-screen flex-col p-10">
+        <Upload handleFileChange={handleFileChange} fileName={fileName} />
+        <Loading loading={loading} />
+        {file && (
+          <div className="flex flex-grow flex-col h-full items-center justify-between gap-10 px-[10%]">
+            <div>
+              <ModeToggle mode={mode} setMode={setMode} />
+            </div>
+            <div className="min-w-[100%]">
+              {mode === "free" ? (
+                <FreeMode
+                  loading={loading}
+                  FreeHistory={FreeHistory}
+                  prompt={prompt}
+                  setPrompt={setPrompt}
+                  handleSubmit={handleSubmit}
+                />
+              ) : (
+                <QuizMode
+                  loading={loading}
+                  handleQuestion={handleQuestion}
+                  userQuizHistory={userQuizHistory}
+                  handleResponse={handleResponse}
+                />
+              )}
+            </div>
           </div>
-          <div className="min-w-[100%]">
-            {mode === "free" ? (
-              <FreeMode
-                loading={loading}
-                FreeHistory={FreeHistory}
-                prompt={prompt}
-                setPrompt={setPrompt}
-                handleSubmit={handleSubmit}
-              />
-            ) : (
-              <QuizMode
-                loading={loading}
-                handleQuestion={handleQuestion}
-                userQuizHistory={userQuizHistory}
-                handleResponse={handleResponse}
-              />
-            )}
-          </div>
-        </div>
-      )}
-    </main>
+        )}
+      </main>
+      <Toaster />
+    </body>
   );
 }

@@ -41,7 +41,7 @@ export default function Upload({ handleFileChange, fileName }: UploadProps) {
             accept="text/plain, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           />
         </label>
-        {fileName && <h1 className="p-5">Uploaded File: {fileName}</h1>}
+        {fileName && <h1 className="pt-5">Uploaded File: {fileName}</h1>}
       </div>
     </>
   );

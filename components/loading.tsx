@@ -1,5 +1,5 @@
 export default function Loading({loading}: {loading: boolean}) {
     return (
-        loading && <h1>LOADING...</h1>
+        <span className={`loading loading-dots loading-lg self-center ${!loading ? "opacity-0" : "opacity-100"}`}></span>
     )
 }

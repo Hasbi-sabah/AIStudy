@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useEffect, useRef } from "react";
 interface history {
   role: string;
   content: string;
@@ -29,6 +30,11 @@ export default function FreeMode({
   setPrompt,
   handleSubmit,
 }: FreeModeProps) {
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [FreeHistory]);
   return (
     <div className="flex flex-col w-full px-10 items-center">
       <p>Ask the document questions:</p>
@@ -49,11 +55,11 @@ export default function FreeMode({
             <Card className={`border-none `}>
               <CardHeader className="p-2">
                 <CardTitle
-                  className={`text-sm ${
+                  className={`text-sm custom ${
                     msg.role === "user" ? "self-end" : "self-start"
                   }`}
                 >
-                  {msg.role}
+                  {msg.role === "assistant" ? "Assistant:" : "User:"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pb-2">
@@ -90,6 +96,7 @@ export default function FreeMode({
           Submit
         </Button>
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }
