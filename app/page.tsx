@@ -94,6 +94,13 @@ export default function Home() {
         content: `You are a document, the user will ask questions and you will answer based on the provided context, do not answer questions that don't relate to the context.`,
       },
     ]);
+    setQuizHistory([
+      {
+        role: "system",
+        content: `You are a document, ask the user questions about the document, the user will give you answers, and you will have to tell them if they are correct or not, do not ask questions that don't relate to the context.`,
+      },
+    ]);
+    setUserQuizHistory([])
     setPrompt("");
     const file = event.target.files[0];
     if (file) {
