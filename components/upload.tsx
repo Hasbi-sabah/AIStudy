@@ -7,7 +7,7 @@ interface UploadProps {
 export default function Upload({ handleFileChange, fileName }: UploadProps) {
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="dark flex flex-col items-center justify-center w-full">
         <label className="flex flex-col items-center justify-center w-[50%] h-36 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-[#212268] hover:bg-gray-100 dark:border-[#1f4770] dark:hover:border-[#1d456c] dark:hover:bg-[#474883]">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             <svg
@@ -41,7 +41,7 @@ export default function Upload({ handleFileChange, fileName }: UploadProps) {
             accept="text/plain, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           />
         </label>
-        {fileName && <h1>Uploaded File: {fileName}</h1>}
+        {fileName && <h1 className="p-5">Uploaded File: {fileName}</h1>}
       </div>
     </>
   );

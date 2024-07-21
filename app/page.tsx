@@ -66,8 +66,8 @@ export default function Home() {
         UUID,
         "quiz_q"
       ));
-    } catch(error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       alert("Something went wrong.");
       return;
     }
@@ -109,8 +109,8 @@ export default function Home() {
               setFile(result);
               setFileName(file.name);
               setLoading(false);
-            } catch(error) {
-              console.log(error)
+            } catch (error) {
+              console.log(error);
               alert("Something went wrong.");
               return;
             }
@@ -153,8 +153,8 @@ export default function Home() {
               setFile(fullText);
               setFileName(file.name);
               setLoading(false);
-            } catch(error) {
-              console.log(error)
+            } catch (error) {
+              console.log(error);
               alert("Something went wrong.");
               return;
             }
@@ -214,8 +214,8 @@ export default function Home() {
     let res;
     try {
       res = await getStory(newFreeHistory, UUID, "free");
-    } catch(error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       alert("Something went wrong.");
       return;
     }
@@ -244,8 +244,8 @@ export default function Home() {
     let res;
     try {
       res = await getStory(newQuizHistory, UUID, "quiz_r", question);
-    } catch(error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       alert("Something went wrong.");
       return;
     }
@@ -259,27 +259,32 @@ export default function Home() {
     setLoading(false);
   }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-10">
+    <main className="flex min-h-screen flex-col p-10">
       <Upload handleFileChange={handleFileChange} fileName={fileName} />
       <Loading loading={loading} />
       {file && (
-        <div>
-          <ModeToggle setMode={setMode} />
-          {mode === "free" ? (
-            <FreeMode
-              FreeHistory={FreeHistory}
-              prompt={prompt}
-              setPrompt={setPrompt}
-              handleSubmit={handleSubmit}
-            />
-          ) : (
-            <QuizMode
-              loading={loading}
-              handleQuestion={handleQuestion}
-              userQuizHistory={userQuizHistory}
-              handleResponse={handleResponse}
-            />
-          )}
+        <div className="flex flex-grow flex-col h-full items-center justify-between gap-10 px-[10%]">
+          <div>
+            <ModeToggle mode={mode} setMode={setMode} />
+          </div>
+          <div className="min-w-[100%]">
+            {mode === "free" ? (
+              <FreeMode
+                loading={loading}
+                FreeHistory={FreeHistory}
+                prompt={prompt}
+                setPrompt={setPrompt}
+                handleSubmit={handleSubmit}
+              />
+            ) : (
+              <QuizMode
+                loading={loading}
+                handleQuestion={handleQuestion}
+                userQuizHistory={userQuizHistory}
+                handleResponse={handleResponse}
+              />
+            )}
+          </div>
         </div>
       )}
     </main>

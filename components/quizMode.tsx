@@ -1,45 +1,123 @@
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface userHistory {
-    role: string;
-    content:
-      | string
-      | {
-          question: string;
-          choices: string[];
-        };
-  }
-  interface QuizModeProps {
-    loading: boolean;
-    handleQuestion: () => void;
-    userQuizHistory: userHistory[];
-    handleResponse: (event: any) => Promise<void>;
-  }
-export default function QuizMode({loading, handleQuestion, userQuizHistory, handleResponse}: QuizModeProps) {
+  role: string;
+  content:
+    | string
+    | {
+        question: string;
+        choices: string[];
+      };
+}
+interface QuizModeProps {
+  loading: boolean;
+  handleQuestion: () => void;
+  userQuizHistory: userHistory[];
+  handleResponse: (event: any) => Promise<void>;
+}
+export default function QuizMode({
+  loading,
+  handleQuestion,
+  userQuizHistory,
+  handleResponse,
+}: QuizModeProps) {
   return (
-    <>
-      <button disabled={loading} onClick={handleQuestion}>
-        Generate Question
-      </button>
+    <div className="flex flex-col justify-center items-center gap-3">
       {userQuizHistory.length > 0 &&
         userQuizHistory.map((msg: userHistory, index: number) =>
           typeof msg.content === "string" ? (
-            <h1 key={index}>
-              {msg.role}: {msg.content}
-            </h1>
+            <div
+              className={`flex items-center gap-3 ${
+                msg.role === "user" ? "self-end" : "self-start"
+              }`}
+            >
+              {msg.role !== "user" && (
+                <Avatar>
+                  <AvatarImage src="/aillama.jpg" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              )}
+              <Card key={index} className='border-none'>
+                <CardHeader className="p-2">
+                  <CardTitle
+                    className={`text-sm ${
+                      msg.role === "user" ? "self-end" : "self-start"
+                    }`}
+                  >
+                    {msg.role}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p>{msg.content}</p>
+                </CardContent>
+              </Card>
+              {msg.role === "user" && (
+                <Avatar>
+                  <AvatarImage src="/llamaUser.jpg" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
           ) : (
-            <h1 key={index}>
-              {msg.role}: {msg.content.question}
-              {msg.content.choices.map((choice: string, i: number) => (
-                <button
-                  onClick={handleResponse}
-                  disabled={userQuizHistory.length - 1 !== index || loading}
-                  key={i}
-                >
-                  {choice}
-                </button>
-              ))}
-            </h1>
+            <div
+              className={`flex items-center gap-3 ${
+                msg.role === "user" ? "self-end" : "self-start"
+              }`}
+            >
+              {msg.role !== "user" && (
+                <Avatar>
+                  <AvatarImage src="/aillama.jpg" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              )}
+              <Card key={index} className={`border-none `}>
+                <CardHeader className="p-2">
+                  <CardTitle
+                    className={`text-sm ${
+                      msg.role === "user" ? "self-end" : "self-start"
+                    }`}
+                  >
+                    {msg.role}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p>{msg.content.question}</p>
+                  <div className="flex flex-wrap items-start">
+                    {msg.content.choices.map((choice: string, i: number) => (
+                      <Button
+                        onClick={handleResponse}
+                        variant="ghost"
+                        disabled={
+                          userQuizHistory.length - 1 !== index || loading
+                        }
+                        key={i}
+                      >
+                        {choice}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              {msg.role === "user" && (
+                <Avatar>
+                  <AvatarImage src="/llamaUser.jpg" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
           )
         )}
-    </>
+      <Button disabled={loading} onClick={handleQuestion}>
+        Generate Question
+      </Button>
+    </div>
   );
 }

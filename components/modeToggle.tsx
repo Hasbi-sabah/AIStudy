@@ -1,20 +1,30 @@
-export default function ModeToggle({setMode}: {setMode: (mode: string) => void}) {
-    return (
-        <div className="flex">
-        <button
-          onClick={() => {
-            setMode("free");
-          }}
-        >
-          Free interact
-        </button>
-        <button
-          onClick={() => {
-            setMode("quiz");
-          }}
-        >
-          Quiz mode
-        </button>
-      </div>
-    )
+import { Button } from "./ui/button";
+
+export default function ModeToggle({
+  mode,
+  setMode,
+}: {
+  mode: string;
+  setMode: (mode: string) => void;
+}) {
+  return (
+    <div className="flex gap-5">
+      <Button
+        variant={mode === "free" ? "default" : "secondary"}
+        onClick={() => {
+          setMode("free");
+        }}
+      >
+        Free interaction Mode
+      </Button>
+      <Button
+        variant={mode !== "free" ? "default" : "secondary"}
+        onClick={() => {
+          setMode("quiz");
+        }}
+      >
+        Quiz Mode
+      </Button>
+    </div>
+  );
 }
