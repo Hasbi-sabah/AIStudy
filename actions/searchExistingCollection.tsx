@@ -23,7 +23,8 @@ export default async function SEC(collectionUUID: string, prompt: string) {
     console.log("searching for similarity");
     response = await v.similaritySearchWithScore(prompt);
     console.log("searching for similarity", response);
-  } catch {
+  } catch(error) {
+    console.log(error)
     new Error("Something went wrong.");
     return;
   }

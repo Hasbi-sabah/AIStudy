@@ -66,7 +66,8 @@ export default function Home() {
         UUID,
         "quiz_q"
       ));
-    } catch {
+    } catch(error) {
+      console.log(error)
       alert("Something went wrong.");
       return;
     }
@@ -108,7 +109,8 @@ export default function Home() {
               setFile(result);
               setFileName(file.name);
               setLoading(false);
-            } catch {
+            } catch(error) {
+              console.log(error)
               alert("Something went wrong.");
               return;
             }
@@ -151,7 +153,8 @@ export default function Home() {
               setFile(fullText);
               setFileName(file.name);
               setLoading(false);
-            } catch {
+            } catch(error) {
+              console.log(error)
               alert("Something went wrong.");
               return;
             }
@@ -211,7 +214,8 @@ export default function Home() {
     let res;
     try {
       res = await getStory(newFreeHistory, UUID, "free");
-    } catch {
+    } catch(error) {
+      console.log(error)
       alert("Something went wrong.");
       return;
     }
@@ -240,7 +244,8 @@ export default function Home() {
     let res;
     try {
       res = await getStory(newQuizHistory, UUID, "quiz_r", question);
-    } catch {
+    } catch(error) {
+      console.log(error)
       alert("Something went wrong.");
       return;
     }
