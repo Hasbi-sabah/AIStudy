@@ -18,7 +18,7 @@
     "next": "14.2.5",
     "openai": "^4.52.7",
     "openai-node": "^1.0.5",
-    "pdfjs-dist": "^4.4.168",
+    "pdfjs-dist": "^2.6.347",
     "react": "^18",
     "react-dom": "^18",
     "uuid": "^10.0.0"

@@ -17,10 +17,17 @@ interface userHistory {
       };
 }
 import * as pdfjsLib from "pdfjs-dist";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.js";
 import mammoth from "mammoth";
+import Upload from "@/components/upload";
+import FreeMode from "@/components/freeMode";
+import QuizMode from "@/components/quizMode";
+import ModeToggle from "@/components/modeToggle";
+import Loading from "@/components/loading";
 
 export default function Home() {
   const [file, setFile] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>("");
   const [mode, setMode] = useState<string>("free");
   const [loading, setLoading] = useState<boolean>(false);
   const [prompt, setPrompt] = useState<string>("");
@@ -61,6 +68,7 @@ export default function Home() {
       ));
     } catch {
       alert("Something went wrong.");
+      return;
     }
     setQuestion(question);
     setQuizHistory([
@@ -78,6 +86,7 @@ export default function Home() {
   }
   const handleFileChange = (event: any) => {
     setFile(null);
+    setFileName("");
     setFreeHistory([
       {
         role: "system",
@@ -97,12 +106,15 @@ export default function Home() {
               setLoading(true);
               setUUID((await Chunker(result)) || "");
               setFile(result);
+              setFileName(file.name);
               setLoading(false);
             } catch {
               alert("Something went wrong.");
+              return;
             }
           } else {
             alert("File content is not a string.");
+            return;
           }
         };
         reader.readAsText(file);
@@ -114,7 +126,14 @@ export default function Home() {
             alert("Failed to load file.");
             return;
           }
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          if (arrayBuffer && arrayBuffer instanceof ArrayBuffer) {
+            const typedArray = new Uint8Array(arrayBuffer);
+          } else {
+            alert("Something went wrong.");
+            return;
+          }
+          const typedArray = new Uint8Array(arrayBuffer);
+          const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
           let fullText = "";
 
           for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -130,14 +149,16 @@ export default function Home() {
               setLoading(true);
               setUUID((await Chunker(fullText)) || "");
               setFile(fullText);
+              setFileName(file.name);
               setLoading(false);
             } catch {
               alert("Something went wrong.");
+              return;
             }
           } else {
             alert("File content is not a string.");
+            return;
           }
-          setFile(fullText);
         };
         reader.readAsArrayBuffer(file);
       } else if (
@@ -160,15 +181,18 @@ export default function Home() {
             setLoading(true);
             setUUID((await Chunker(text)) || "");
             setFile(text);
+            setFileName(file.name);
             setLoading(false);
           } catch (error) {
             console.error("Error extracting text from docx:", error);
             alert("Could not extract text from document.");
+            return;
           }
         };
         reader.readAsArrayBuffer(file);
       } else {
         alert("Please select a .txt file.");
+        return;
       }
     }
   };
@@ -189,6 +213,7 @@ export default function Home() {
       res = await getStory(newFreeHistory, UUID, "free");
     } catch {
       alert("Something went wrong.");
+      return;
     }
     const newHistory = [...newFreeHistory, { role: "assistant", content: res }];
     setFreeHistory(newHistory);
@@ -217,6 +242,7 @@ export default function Home() {
       res = await getStory(newQuizHistory, UUID, "quiz_r", question);
     } catch {
       alert("Something went wrong.");
+      return;
     }
     const newHistory = [...newQuizHistory, { role: "assistant", content: res }];
     const newUserHistory = [
@@ -229,80 +255,25 @@ export default function Home() {
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      {loading && <h1>LOADING...</h1>}
-      <input
-        type="file"
-        onChange={handleFileChange}
-        accept="text/plain, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      />
-
+      <Upload handleFileChange={handleFileChange} fileName={fileName} />
+      <Loading loading={loading} />
       {file && (
         <div>
-          <div className="flex">
-            <button
-              onClick={() => {
-                setMode("free");
-              }}
-            >
-              Free interact
-            </button>
-            <button
-              onClick={() => {
-                setMode("quiz");
-              }}
-            >
-              Quiz mode
-            </button>
-          </div>
+          <ModeToggle setMode={setMode} />
           {mode === "free" ? (
-            <>
-              <p>file loaded successfully! Ask the document questions:</p>
-              {FreeHistory.slice(1).length > 0 &&
-                FreeHistory.slice(1).map((msg: history, index: number) => (
-                  <h1 key={index}>
-                    {msg.role}: {msg.content}
-                  </h1>
-                ))}
-              <input
-                className="text-black w-full"
-                type="text"
-                value={prompt}
-                onKeyPress={(event) => {
-                  if (event.key === 'Enter') {
-                    handleSubmit();
-                  }
-                }}
-                onChange={(event) => {
-                  setPrompt(event.target.value);
-                }}
-              />
-              <button onClick={handleSubmit}>Submit</button>
-            </>
+            <FreeMode
+              FreeHistory={FreeHistory}
+              prompt={prompt}
+              setPrompt={setPrompt}
+              handleSubmit={handleSubmit}
+            />
           ) : (
-            <>
-              <button disabled={loading} onClick={handleQuestion}>Generate Question</button>
-              {userQuizHistory.length > 0 &&
-                userQuizHistory.map((msg: userHistory, index: number) =>
-                  typeof msg.content === "string" ? (
-                    <h1 key={index}>
-                      {msg.role}: {msg.content}
-                    </h1>
-                  ) : (
-                    <h1 key={index}>
-                      {msg.role}: {msg.content.question}
-                      {msg.content.choices.map((choice: string, i: number) => (
-                        <button
-                          onClick={handleResponse}
-                          disabled={userQuizHistory.length - 1 !== index || loading}
-                          key={i}
-                        >
-                          {choice}
-                        </button>
-                      ))}
-                    </h1>
-                  )
-                )}
-            </>
+            <QuizMode
+              loading={loading}
+              handleQuestion={handleQuestion}
+              userQuizHistory={userQuizHistory}
+              handleResponse={handleResponse}
+            />
           )}
         </div>
       )}
