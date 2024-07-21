@@ -34,19 +34,19 @@ export default function FreeMode({
       <p>Ask the document questions:</p>
       {FreeHistory.slice(1).length > 0 &&
         FreeHistory.slice(1).map((msg: history, index: number) => (
-          <div className={`flex items-center gap-3 ${
-            msg.role === "user" ? "self-end" : "self-start"
-          }`}>
+          <div
+            key={index}
+            className={`flex items-center gap-3 ${
+              msg.role === "user" ? "self-end" : "self-start"
+            }`}
+          >
             {msg.role !== "user" && (
               <Avatar>
-                <AvatarImage  src="/aillama.jpg" />
+                <AvatarImage src="/aillama.jpg" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             )}
-            <Card
-              key={index}
-              className={`border-none `}
-            >
+            <Card className={`border-none `}>
               <CardHeader className="p-2">
                 <CardTitle
                   className={`text-sm ${

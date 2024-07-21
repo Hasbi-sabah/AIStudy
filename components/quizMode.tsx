@@ -35,6 +35,7 @@ export default function QuizMode({
         userQuizHistory.map((msg: userHistory, index: number) =>
           typeof msg.content === "string" ? (
             <div
+            key={index} 
               className={`flex items-center gap-3 ${
                 msg.role === "user" ? "self-end" : "self-start"
               }`}
@@ -45,7 +46,7 @@ export default function QuizMode({
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               )}
-              <Card key={index} className='border-none'>
+              <Card className='border-none'>
                 <CardHeader className="p-2">
                   <CardTitle
                     className={`text-sm ${
@@ -68,6 +69,7 @@ export default function QuizMode({
             </div>
           ) : (
             <div
+            key={index} 
               className={`flex items-center gap-3 ${
                 msg.role === "user" ? "self-end" : "self-start"
               }`}
@@ -78,7 +80,7 @@ export default function QuizMode({
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               )}
-              <Card key={index} className={`border-none `}>
+              <Card className={`border-none `}>
                 <CardHeader className="p-2">
                   <CardTitle
                     className={`text-sm ${
